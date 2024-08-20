@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, computed, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterOutlet } from '@angular/router';
 import { initFlowbite } from 'flowbite';
@@ -16,30 +16,28 @@ import { BehaviorSubject, combineLatest, map, tap } from 'rxjs';
         <div class="border-b-orange-400 border-b py-1 px-5">
           <div class="flex items-center justify-between">
             <h5 class="font-thin">Price:</h5>
-            <p>{{ price$.getValue() }} $</p>
+            <p>{{ price() }} $</p>
           </div>
         </div>
 
         <div class="border-b-orange-400 border-b py-1 px-5">
           <div class="flex items-center justify-between">
             <h5 class="font-thin">Quantity:</h5>
-            <p>{{ quantity$.getValue() }} $</p>
+            <p>{{ quantity() }} $</p>
           </div>
         </div>
 
         <div class="border-b-orange-400 border-b py-1 px-5">
           <div class="flex items-center justify-between">
             <h5 class="font-thin">Discount:</h5>
-            <p>{{ discount$.getValue() }} $</p>
+            <p>{{ discount() }} $</p>
           </div>
         </div>
 
         <div class="py-1 px-5">
           <div class="flex items-center justify-between">
             <h5 class="font-thin">Total Price:</h5>
-            <p class="text-orange-400 font-semibold">
-              {{ totalPrice$ | async }} $
-            </p>
+            <p class="text-orange-400 font-semibold">{{ totalPrice() }} $</p>
           </div>
         </div>
         <button
@@ -56,28 +54,22 @@ import { BehaviorSubject, combineLatest, map, tap } from 'rxjs';
 })
 export class AppComponent implements OnInit {
   counter = 0;
-  price$ = new BehaviorSubject(10);
-  quantity$ = new BehaviorSubject(4);
-  discount$ = new BehaviorSubject(50);
-  totalPrice$ = combineLatest([
-    this.price$,
-    this.quantity$,
-    this.discount$,
-  ]).pipe(
-    tap(() => this.counter++),
-    map(([price, quantity, discount]) => {
-      const total = price * quantity;
-      return total - (total * discount) / 100;
-    })
-  );
+  price = signal(10);
+  quantity = signal(4);
+  discount = signal(50);
+  totalPrice = computed(() => {
+    const total = this.price() * this.quantity();
+    this.counter++;
+    return total - (total * this.discount()) / 100;
+  });
 
   ngOnInit(): void {
     initFlowbite();
   }
 
   calculate() {
-    this.price$.next(120);
-    this.quantity$.next(5);
-    this.discount$.next(30);
+    this.price.set(10);
+    this.quantity.set(5);
+    this.discount.set(30);
   }
 }

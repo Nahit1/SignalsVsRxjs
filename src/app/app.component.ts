@@ -50,22 +50,7 @@ import {
             </p>
           </div>
         </div>
-        <div class="py-1 px-5">
-          <div class="flex items-center justify-between">
-            <h5 class="font-thin">Total Price:</h5>
-            <p class="text-orange-400 font-semibold">
-              {{ totalPrice$ | async }} $
-            </p>
-          </div>
-        </div>
-        <div class="py-1 px-5">
-          <div class="flex items-center justify-between">
-            <h5 class="font-thin">Total Price:</h5>
-            <p class="text-orange-400 font-semibold">
-              {{ totalPrice$ | async }} $
-            </p>
-          </div>
-        </div>
+
         <button
           (click)="calculate()"
           class="inline-flex mt-5 px-5 w-full py-2 text-sm font-medium justify-center text-white bg-orange-400 rounded-lg hover:bg-orange-500 focus:ring-4 focus:outline-none"
@@ -84,17 +69,15 @@ export class AppComponent implements OnInit {
   quantity$ = new BehaviorSubject(4);
   discount$ = new BehaviorSubject(50);
   totalPrice$ = combineLatest([
-    this.price$.pipe(distinctUntilChanged()),
-    this.quantity$.pipe(distinctUntilChanged()),
-    this.discount$.pipe(distinctUntilChanged()),
+    this.price$,
+    this.quantity$,
+    this.discount$,
   ]).pipe(
-    debounceTime(0),
     tap(() => this.counter++),
     map(([price, quantity, discount]) => {
       const total = price * quantity;
       return total - (total * discount) / 100;
-    }),
-    shareReplay()
+    })
   );
 
   ngOnInit(): void {
